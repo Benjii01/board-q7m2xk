@@ -1,0 +1,1186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Presale Board</title>
+<style>
+  :root {
+    --bg: #f5f6f8; --panel: #ffffff; --ink: #161a22; --muted: #687080; --faint: #a0a6b1; --line: #e6e8ec; --soft: #f1f3f6; --zebra: #fafbfc;
+    --accent: #2f6fde; --accent-ink: #ffffff;
+    --tm: #2563eb; --sg: #e8590c; --axs: #c2255c;
+    --artist: #7048e8; --artist-bg: #f3f0ff; --spotify: #2b8a3e; --spotify-bg: #ebfbee;
+    --card: #1c7ed6; --card-bg: #e7f5ff; --vf: #e03131; --vf-bg: #fff5f5;
+    --public: #343a40; --public-bg: #e9ecef; --other: #687080; --other-bg: #f1f3f5;
+    --large: #c2410c; --large-bg: #fff1e6; --medium: #a16207; --medium-bg: #fef9c3; --small: #687080; --small-bg: #f1f3f5;
+    --queue: #c92a2a; --queue-bg: #fff5f5; --live: #2b8a3e; --live-bg: #ebfbee;
+    --shadow: 0 1px 2px rgba(16, 24, 40, .05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0e1116; --panel: #161a21; --ink: #e9ecf1; --muted: #9aa3b2; --faint: #6b7385; --line: #252b36; --soft: #1d222b; --zebra: #191e26;
+      --accent: #748ffc; --accent-ink: #0e1116;
+      --tm: #74c0fc; --sg: #ffa94d; --axs: #f783ac;
+      --artist: #b197fc; --artist-bg: #2a2147; --spotify: #69db7c; --spotify-bg: #15301c;
+      --card: #74c0fc; --card-bg: #142c40; --vf: #ff8787; --vf-bg: #3a1c1c;
+      --public: #e9ecef; --public-bg: #343a40; --other: #adb5bd; --other-bg: #262b33;
+      --large: #fdba74; --large-bg: #3b2414; --medium: #fde047; --medium-bg: #33300f; --small: #adb5bd; --small-bg: #262b33;
+      --queue: #ff8787; --queue-bg: #3a1c1c; --live: #69db7c; --live-bg: #15301c;
+      --shadow: none;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.45 Inter, "Segoe UI", system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
+  main { max-width: 860px; margin: 0 auto; padding: 22px 16px 48px; }
+  a { color: inherit; text-decoration: none; }
+  button { font: inherit; color: inherit; cursor: pointer; }
+
+  header { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+  h1 { margin: 0; font-size: 21px; letter-spacing: -.02em; }
+  .sub { color: var(--muted); font-size: 12.5px; }
+  .now { font-size: 12.5px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--ink); background: var(--soft);
+    border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; white-space: nowrap; }
+  .now:empty { display: none; }
+
+  .toolbar { position: sticky; top: 0; z-index: 3; background: var(--bg); padding: 8px 0 10px; margin-bottom: 6px;
+    display: flex; gap: 8px 12px; flex-wrap: wrap; align-items: center; }
+  .chips { display: flex; gap: 5px; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: var(--panel);
+    border-radius: 999px; padding: 4px 11px; font-size: 12.5px; color: var(--muted); }
+  .chip i { width: 7px; height: 7px; border-radius: 50%; }
+  .chip[aria-pressed="true"] { color: var(--ink); border-color: var(--ink); font-weight: 600; }
+  .chip[aria-pressed="false"] i { opacity: .3; }
+  .size { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--muted); }
+  .size input { width: 120px; accent-color: var(--accent); }
+  .size b { color: var(--ink); font-weight: 600; min-width: 62px; }
+  .seg { display: inline-flex; background: var(--soft); border-radius: 8px; padding: 2px; }
+  .seg button { border: 0; background: transparent; padding: 3px 10px; border-radius: 6px; font-size: 12.5px; color: var(--muted); }
+  .seg button[aria-pressed="true"] { background: var(--panel); color: var(--ink); font-weight: 600; box-shadow: var(--shadow); }
+  .search { flex: 1; min-width: 150px; padding: 5px 10px; border: 1px solid var(--line); border-radius: 8px;
+    background: var(--panel); color: var(--ink); font: inherit; font-size: 12.5px; }
+
+  .day { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 18px 0 8px; }
+
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 11px 14px 10px; margin-bottom: 8px; box-shadow: var(--shadow); }
+  .row1 { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .badges { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
+  .seller { font-size: 10.5px; font-weight: 700; padding: 1px 7px; border-radius: 999px; border: 1.5px solid currentColor; white-space: nowrap; }
+  .s-tm { color: var(--tm); } .s-sg { color: var(--sg); } .s-axs { color: var(--axs); } .s-other { color: var(--other); }
+  .badge { font-size: 10.5px; font-weight: 600; padding: 1px 7px; border-radius: 5px; white-space: nowrap; }
+  .b-artist { color: var(--artist); background: var(--artist-bg); } .b-spotify { color: var(--spotify); background: var(--spotify-bg); }
+  .b-card { color: var(--card); background: var(--card-bg); } .b-vf { color: var(--vf); background: var(--vf-bg); }
+  .b-public { color: var(--public); background: var(--public-bg); } .b-other { color: var(--other); background: var(--other-bg); }
+  .b-new { color: var(--spotify); background: var(--spotify-bg); } .b-added { color: var(--medium); background: var(--medium-bg); }
+  .artist-link { border: 0; background: none; padding: 0; color: inherit; cursor: pointer; text-align: left; }
+  .artist-link:hover { text-decoration: underline; }
+  .artist-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin: 8px 0 2px; }
+  .artist-head .artist { font-size: 20px; }
+  .back { border: 1px solid var(--line); background: var(--panel); border-radius: 7px; padding: 3px 10px; font-size: 12.5px; }
+  .row-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 3px; }
+  ul.shows.all { background: var(--panel); }
+  .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 6px 14px; background: var(--panel);
+    border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; margin: 10px 0 4px; }
+  .fact { display: flex; flex-direction: column; min-width: 0; }
+  .fk { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--faint); }
+  .fv { font-size: 13px; }
+  .facts-line { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12.5px; color: var(--muted); margin: 6px 0 2px; }
+  .facts-line b { color: var(--ink); font-weight: 600; }
+  .facts-line .warn b { color: var(--vf); }
+  .sched-day { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted);
+    padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+  .card.sched { margin-bottom: 12px; }
+  .slot { display: grid; grid-template-columns: 92px 1fr; gap: 12px; padding: 10px 0 2px; }
+  .slot-time b { display: block; font-size: 15px; font-variant-numeric: tabular-nums; }
+  .slot-time small { font-size: 11.5px; color: var(--queue); }
+  .slot-what { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); }
+  .slot-what .names { color: var(--ink); font-weight: 600; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; margin-top: 7px; }
+  .tile { display: block; min-width: 0; border: 1px solid var(--line); border-radius: 8px; background: var(--soft); padding: 5px 9px;
+    color: inherit; font: inherit; font-size: 12px; line-height: 1.35; text-align: left; cursor: pointer; }
+  .tile:hover { border-color: var(--accent); }
+  .tile.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  .tile span.price { color: var(--ink); font-weight: 600; }
+  .tile span.pn { color: var(--ink); font-weight: 600; }
+  .slot-map:not(:empty) { margin-top: 8px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--zebra); font-size: 12.5px; }
+  .panel-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .slot-map .facts-line { margin: 6px 0 0; }
+  .slot-map img { display: block; max-width: 100%; max-height: 460px; margin-top: 8px; border-radius: 8px; background: #fff; }
+  .tile b { font-size: 12.5px; }
+  .tile .wk { margin-left: 5px; font-size: 10px; font-weight: 700; color: var(--spotify); }
+  .tile span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--muted); }
+  .tile span.on { color: var(--vf); font-weight: 600; }
+  @media (max-width: 520px) { .slot { grid-template-columns: 70px 1fr; gap: 8px; } }
+  details.sec { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; margin: 8px 0; }
+  details.sec summary { cursor: pointer; font-weight: 600; font-size: 13.5px; }
+  details.sec p { margin: 8px 0 0; font-size: 12.5px; color: var(--muted); }
+  details.sec p b { color: var(--ink); }
+  details.sec ul.shows { margin-top: 8px; }
+  .map { margin-top: 10px; font-size: 12.5px; }
+  .map img { display: block; max-width: 100%; max-height: 420px; margin-top: 4px; border-radius: 8px; background: #fff; }
+  .details img { display: block; max-width: 100%; max-height: 420px; margin: 6px 0 4px; border-radius: 8px; background: #fff; }
+  .clock { font-size: 11.5px; font-weight: 600; font-variant-numeric: tabular-nums; padding: 2px 8px; border-radius: 999px; background: var(--soft); color: var(--muted); white-space: nowrap; }
+  .clock.queue { color: var(--queue); background: var(--queue-bg); } .clock.live { color: var(--live); background: var(--live-bg); }
+
+  .row2 { display: flex; align-items: baseline; gap: 8px; margin-top: 7px; flex-wrap: wrap; }
+  .artist { font-size: 16px; font-weight: 700; letter-spacing: -.01em; }
+  .pop { font-size: 10.5px; font-weight: 700; padding: 1px 7px; border-radius: 999px; }
+  .p-large { color: var(--large); background: var(--large-bg); } .p-medium { color: var(--medium); background: var(--medium-bg); } .p-small { color: var(--small); background: var(--small-bg); }
+  .listen { font-size: 12px; color: var(--muted); }
+  a.listen:hover { color: var(--ink); }
+  .when { color: var(--muted); font-size: 12.5px; margin-top: 1px; }
+
+  ul.shows { list-style: none; margin: 8px 0 0; padding: 0; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  ul.shows li { display: grid; grid-template-columns: 92px 1fr auto; gap: 10px; align-items: center; padding: 6px 10px; }
+  ul.shows li:nth-child(even) { background: var(--zebra); }
+  ul.shows li + li { border-top: 1px solid var(--line); }
+  .sd { font-size: 12.5px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .sd small { display: block; font-size: 10px; font-weight: 700; color: var(--spotify); letter-spacing: .03em; }
+  .sv { min-width: 0; font-size: 13px; line-height: 1.3; }
+  .sv b { display: block; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sv span { color: var(--muted); font-size: 12px; }
+  .go { font-size: 12px; font-weight: 600; background: var(--accent); color: var(--accent-ink); padding: 4px 10px; border-radius: 7px; white-space: nowrap; }
+  .go:hover { filter: brightness(1.08); }
+  .more, .info { border: 0; background: none; padding: 5px 0 0; font-size: 12px; color: var(--muted); margin-right: 14px; }
+  .more:hover, .info:hover { color: var(--ink); }
+  .details { font-size: 12px; color: var(--muted); padding-top: 4px; }
+  .details div + div { margin-top: 2px; }
+  .details b { color: var(--ink); font-weight: 600; }
+  @media (max-width: 520px) { ul.shows li { grid-template-columns: 76px 1fr auto; gap: 8px; } .size input { width: 96px; } }
+
+  /* Dashboard: quick numbers, then short boxes (next up, AXS/SeatGeek, just added, biggest artists) */
+  .stats { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 4px; }
+  .stat { flex: 1; min-width: 110px; border: 1px solid var(--line); background: var(--panel); border-radius: 10px; padding: 7px 12px;
+    text-align: left; box-shadow: var(--shadow); }
+  .stat:hover { border-color: var(--accent); }
+  .stat b { display: block; font-size: 20px; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+  .stat span { font-size: 11.5px; color: var(--muted); }
+  .dgrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 12px; }
+  @media (max-width: 760px) { .dgrid { grid-template-columns: minmax(0, 1fr); } }
+  .dbox { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 2px 14px 4px; margin: 12px 0 0; box-shadow: var(--shadow); min-width: 0; }
+  .dbox h2 { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin: 10px 0 2px;
+    font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+  .dbox h2 small { font-size: 11.5px; font-weight: 500; text-transform: none; letter-spacing: 0; color: var(--faint); }
+  .drow { display: grid; grid-template-columns: 96px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 7px 0; }
+  .drow + .drow { border-top: 1px solid var(--line); }
+  .dt b { display: block; font-size: 13px; font-variant-numeric: tabular-nums; }
+  .dt small { display: block; font-size: 11px; color: var(--muted); }
+  .dt .wk { font-size: 10px; font-weight: 700; color: var(--spotify); }
+  .dtop { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; min-width: 0; }
+  .dtop .artist { font-size: 14px; }
+  .dsub { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dright { display: flex; gap: 4px; align-items: center; justify-content: flex-end; flex-wrap: wrap; }
+  .dnone { font-size: 12.5px; color: var(--muted); padding: 6px 0 8px; }
+  @media (max-width: 520px) { .drow { grid-template-columns: 74px minmax(0, 1fr) auto; gap: 8px; } }
+
+  .cal-head { display: flex; align-items: center; gap: 6px; margin: 12px 0 8px; }
+  .cal-head .month { font-size: 15px; font-weight: 700; flex: 1; }
+  .cal-head button { border: 1px solid var(--line); background: var(--panel); border-radius: 6px; padding: 2px 10px; font-size: 12.5px; }
+  .grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+  .dow { font-size: 11px; color: var(--muted); text-align: center; font-weight: 600; }
+  .cell { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; min-height: 76px; padding: 4px 5px; text-align: left;
+    display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .cell.out { opacity: .4; } .cell.today .num { background: var(--accent); color: var(--accent-ink); }
+  .cell.sel { outline: 2px solid var(--accent); outline-offset: -1px; }
+  .cell .num { font-size: 11px; font-weight: 600; width: 19px; height: 19px; display: grid; place-items: center; border-radius: 50%; }
+  .cell .ev { font-size: 10.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--muted); }
+  .cell .more-n { font-size: 10px; color: var(--faint); }
+  .count { display: none; font-size: 10px; font-weight: 700; color: var(--accent); }
+  @media (max-width: 640px) { .cell { min-height: 46px; } .cell .ev, .cell .more-n { display: none; } .count { display: block; } }
+
+  .empty { color: var(--muted); padding: 28px 0; text-align: center; font-size: 13px; }
+  .notice { font-size: 12.5px; color: var(--muted); padding: 4px 0; }
+  footer { color: var(--faint); font-size: 11.5px; margin-top: 24px; text-align: center; }
+
+  /* Sidebar: Dashboard + upcoming artists, like a channel list */
+  main.layout { max-width: 1180px; display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 22px; align-items: start; }
+  .side { position: sticky; top: 12px; max-height: calc(100vh - 24px); overflow-y: auto; padding: 4px 4px 12px 0; }
+  .side-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--faint); margin: 14px 8px 4px; }
+  .side-item { display: flex; align-items: center; gap: 7px; width: 100%; border: 0; background: none; text-align: left;
+    padding: 4px 8px; border-radius: 6px; font-size: 13px; color: var(--muted); }
+  .side-item:hover { background: var(--soft); color: var(--ink); }
+  .side-item[aria-current="true"] { background: var(--soft); color: var(--ink); font-weight: 600; }
+  .side-item .sdt { font-variant-numeric: tabular-nums; color: var(--faint); font-size: 12px; flex: none; }
+  .side-item .snm { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+  /* sellers as short labels (TM / SG / AXS), not dots: dots were too easy to mix up */
+  .side-item .sl { font-size: 9px; font-weight: 700; padding: 0 4px; border-radius: 4px; border: 1px solid currentColor; line-height: 13px; flex: none; }
+  /* "just added" is a word, not a dot, so it can't be mistaken for the AXS dot */
+  .side-item .new { font-size: 9.5px; font-weight: 700; letter-spacing: .03em; color: var(--vf); background: var(--vf-bg);
+    padding: 0 5px; border-radius: 4px; line-height: 15px; flex: none; }
+  .side-day { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--faint);
+    margin: 8px 8px 3px; padding-top: 7px; border-top: 1px solid var(--line); }
+  .side-day:first-child { margin-top: 2px; }
+  .side-unv { display: block; width: calc(100% - 16px); background: none; border-left: 0; border-right: 0; border-bottom: 0; text-align: left; cursor: pointer; }
+  .side-unv:hover { color: var(--ink); }
+  details.unv { margin-top: 18px; }
+  details.unv .drow:first-of-type { margin-top: 4px; }
+  .dash { font-weight: 600; color: var(--ink); }
+  .side-toggle { display: none; margin-left: auto; border: 1px solid var(--line); background: var(--panel); border-radius: 7px; padding: 3px 10px; font-size: 12.5px; }
+  @media (max-width: 860px) {
+    main.layout { grid-template-columns: 1fr; gap: 0; }
+    .side { display: none; position: static; max-height: 50vh; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); margin-bottom: 10px; padding: 6px; order: 0; }
+    .side.open { display: block; }
+    .content { order: 1; }
+    .side-toggle { display: inline-block; }
+  }
+</style>
+</head>
+<body>
+<main class="layout">
+  <aside class="side" id="side" aria-label="Upcoming artists">
+    <button class="side-item dash" id="dash">Dashboard</button>
+    <div class="side-title">Upcoming artists</div>
+    <div id="sideList"></div>
+  </aside>
+  <div class="content">
+  <header>
+    <h1>Presale Board</h1>
+    <span class="sub" id="updated">Loading…</span>
+    <span class="now" id="now" title="Your local time. Every sale and queue time on this page is in this time zone."></span>
+    <button class="side-toggle" id="sideToggle" aria-controls="side" aria-expanded="false">Artists ▾</button>
+  </header>
+
+  <div class="toolbar">
+    <div class="chips" id="sellerSeg" role="group" aria-label="Sellers to show">
+      <button class="chip" data-seller="Ticketmaster"><i style="background:var(--tm)"></i>Ticketmaster</button>
+      <button class="chip" data-seller="SeatGeek"><i style="background:var(--sg)"></i>SeatGeek</button>
+      <button class="chip" data-seller="AXS"><i style="background:var(--axs)"></i>AXS</button>
+    </div>
+    <label class="size">Artist size
+      <input type="range" id="size" min="0" max="3" step="1" aria-label="Minimum artist size">
+      <b id="sizeLabel"></b>
+    </label>
+    <div class="seg" id="viewSeg" aria-label="View">
+      <button data-view="dash">Dashboard</button>
+      <button data-view="list">List</button>
+      <button data-view="calendar">Calendar</button>
+    </div>
+    <input class="search" id="q" type="search" placeholder="Search artist or city">
+  </div>
+
+  <div id="view"></div>
+
+  <footer>Ticketmaster, Spotify, Deezer and venue data, refreshed about every 2 hours · times are in your time zone<br>
+    Artist size by monthly Spotify listeners: Small up to 3M, Medium 3M–15M, Large 15M+ · only artists with 1M+ Spotify monthly listeners are listed · This page doesn't collect any information about visitors.</footer>
+  </div>
+</main>
+
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  let DATA = null, LEAD = 30;
+  const SELLERS = ['Ticketmaster', 'SeatGeek', 'AXS'];
+  const SHOWN = 4;          // show rows before "+ more"
+  const DEEZER_TO_SPOTIFY = 50;
+  const SIZE_STEPS = ['All', 'Small +', 'Medium +', 'Large'];
+  const MIN_LISTENERS = 1000000;  // artists Spotify shows under this aren't worth reselling: never listed
+  // Artist size by monthly listeners: Small (up to 3M), Medium (3M-15M), Large (15M+).
+  const state = { view: load('view2', 'dash'), size: Number(load('size5', 0)), q: '', month: null, sel: null, artist: null,
+    sellers: loadSellers(), open: new Set() };
+
+  function load(k, d) { try { const v = localStorage.getItem('pb.' + k); return v == null ? d : v; } catch (e) { return d; } }
+  function loadSellers() {
+    try { const v = JSON.parse(localStorage.getItem('pb.sellers')); if (Array.isArray(v)) return new Set(v.filter((s) => SELLERS.includes(s))); } catch (e) {}
+    return new Set(SELLERS);
+  }
+  function save(k, v) { try { localStorage.setItem('pb.' + k, v); } catch (e) {} }
+  function el(tag, text, cls) { const e = document.createElement(tag); if (text != null) e.textContent = text; if (cls) e.className = cls; return e; }
+  function link(text, href, cls) { const a = el('a', text, cls); a.href = href; a.target = '_blank'; a.rel = 'noopener noreferrer'; return a; }
+  const safe = (u, prefix) => (u && u.startsWith(prefix) ? u : '');
+  const isWeekend = (d) => d && [5, 6].includes(new Date(d + 'T12:00:00').getDay());
+  const dayKey = (d) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+  const sellerClass = (s) => ({ Ticketmaster: 's-tm', SeatGeek: 's-sg', AXS: 's-axs' }[s] || 's-other');
+  const compact = new Intl.NumberFormat([], { notation: 'compact', maximumFractionDigits: 1 });
+
+  // Artist popularity: Spotify monthly listeners, or an estimate from Deezer fans.
+  function popularity(p) {
+    if (!p) return { rank: 0, n: 0, text: '', unverified: true };
+    const sp = p.spotify_listeners || p.listeners || 0, dz = p.deezer_fans || 0;
+    const n = sp || dz * DEEZER_TO_SPOTIFY;
+    // Large 15M+, Medium 3M-15M, Small up to 3M. No popularity data = rank 0 (only shown under All).
+    const rank = n >= 15e6 ? 3 : n >= 3e6 ? 2 : n > 0 ? 1 : 0;
+    // Spotify page known but its number couldn't be read this run (Spotify glitch): never hidden for that.
+    const unread = !sp && !!p.spotify_url;
+    const text = sp ? `${compact.format(sp)} monthly listeners` : unread ? 'Spotify number not read this run'
+      : dz ? `${compact.format(dz)} Deezer fans` : '';
+    // Owner: only artists that can make a profit. Spotify under 1M = hidden. No Spotify page at all
+    // (Deezer-only or unknown) = "unverified": kept out of the main list but in a folded section, since a
+    // big artist can land there when the link isn't found (John Summit did once).
+    return { rank, n, text, tooSmall: !!sp && sp < MIN_LISTENERS, unverified: !sp && !unread };
+  }
+  const SIZE_NAME = ['', 'Small', 'Medium', 'Large'], SIZE_CLASS = ['', 'p-small', 'p-medium', 'p-large'];
+
+  const fTime = new Intl.DateTimeFormat([], { hour: 'numeric', minute: '2-digit' });
+  const fDay = new Intl.DateTimeFormat([], { weekday: 'long', month: 'long', day: 'numeric' });
+  const fShort = new Intl.DateTimeFormat([], { weekday: 'short', month: 'short', day: 'numeric' });
+  const fMonth = new Intl.DateTimeFormat([], { month: 'long', year: 'numeric' });
+  const showDate = (d) => (d ? fShort.format(new Date(d + 'T12:00:00')) : 'Date TBA');
+
+  // Presale type -> colour class and a friendlier name.
+  function kind(label, artist) {
+    // "LIVE NATION PRESALE" -> "Live Nation Presale" (Ticketmaster writes some names in capitals)
+    if (/[a-z]/.test(label) === false && /[A-Z]{4}/.test(label)) label = label.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+    const l = label.toLowerCase();
+    if (l.includes('verified fan')) return ['vf', label];
+    if (l.includes('spotify')) return ['spotify', label];
+    if (l.includes('public')) return ['public', 'General sale'];
+    if (/artist|fan club|official/.test(l) || (artist && l.includes(artist.toLowerCase()))) return ['artist', label];
+    if (/citi|amex|american express|capital one|chase|mastercard|visa|card|verizon|bank/.test(l)) return ['card', label];
+    return ['other', label];
+  }
+  const isPublic = (labels) => labels.length === 1 && kind(labels[0])[0] === 'public';
+
+  function span(ms) {
+    const s = Math.max(0, Math.floor(ms / 1000));
+    const d = Math.floor(s / 86400), h = Math.floor((s % 86400) / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+    const p = (n) => String(n).padStart(2, '0');
+    if (d) return `${d}d ${h}h`;
+    if (h) return `${h}h ${p(m)}m`;
+    return `${m}m ${p(sec)}s`;
+  }
+  function clock(start, est) {
+    const now = Date.now(), q = start - LEAD * 60000, pre = est ? '≈ ' : '';
+    if (now < q) return ['', `${pre}Queue in ${span(q - now)}`];
+    if (now < start) return ['queue', `Queue open · ${span(start - now)}`];
+    return ['live', 'On sale now'];
+  }
+  // Live local time in the header (the viewer's own clock and time zone; nothing is sent anywhere).
+  const fNow = new Intl.DateTimeFormat([], { weekday: 'short', hour: 'numeric', minute: '2-digit', second: '2-digit', timeZoneName: 'short' });
+  function nowClock() { $('now').textContent = 'Your time: ' + fNow.format(new Date()); }
+  nowClock();
+  setInterval(nowClock, 1000);
+
+  function tick() {
+    document.querySelectorAll('[data-clock]').forEach((n) => {
+      const c = clock(Number(n.dataset.clock), n.dataset.est === '1');
+      n.className = 'clock ' + c[0]; n.textContent = c[1];
+    });
+  }
+
+  function tourFor(o) {
+    return DATA.tours.find((x) => x.artist.toLowerCase() === o.artist.toLowerCase()) ||
+      (o.listeners || safe(o.spotify_url, 'https://') ? { score: o.score || 0, spotify_listeners: o.listeners, spotify_url: o.spotify_url, reasons: [] } : null);
+  }
+
+  // Every upcoming sale that passes the filters: Ticketmaster sales ({t, s}) and SeatGeek/AXS
+  // shows ({o}). Earliest first; shows without a sale time ("on sale soon") go last.
+  function rows() {
+    if (!DATA) return [];
+    const cutoff = Date.now() - 2 * 3600000, out = [];
+    const today = new Date().toISOString().slice(0, 10);
+    const words = (s) => (s || '').toLowerCase().split(/[^\p{L}\p{N}]+/u).filter(Boolean);
+    const qWords = words(state.q);
+    // 2 = whole-word match (every search word is a whole word of the artist name, or the whole city),
+    // 1 = partial text match, 0 = none. If anything matches whole-word, only those are shown.
+    function matchLevel(artist, cities) {
+      if (!qWords.length) return 2;
+      const a = words(artist), q = qWords.join(' ');
+      if (qWords.every((w) => a.includes(w)) || cities.some((c) => words(c).join(' ') === q)) return 2;
+      if (a.join(' ').includes(q) || cities.some((c) => words(c).join(' ').includes(q))) return 1;
+      return 0;
+    }
+    if (state.sellers.has('Ticketmaster')) DATA.tours.forEach((t) => {
+      const pop = popularity(t), m = matchLevel(t.artist, t.shows.map((s) => s.city));
+      // Unverified artists have no real size, so the size slider doesn't apply to them.
+      if (pop.tooSmall || (!pop.unverified && pop.rank < state.size) || !m) return;
+      t.sales.forEach((s) => {
+        if (!s.labels) s.labels = s.label.split(' / ');
+        const ms = Date.parse(s.start);
+        if (ms >= cutoff) out.push({ t, s, ms, n: pop.n, m, u: !!pop.unverified, key: t.artist_id + s.start });
+      });
+    });
+    (DATA.priority || []).forEach((o) => {
+      const shownUnder = o.seller === 'SeatGeek' || o.seller === 'AXS' ? [o.seller] : ['SeatGeek', 'AXS'];
+      if (!shownUnder.some((x) => state.sellers.has(x)) || o.date < today) return;
+      const pop = popularity(tourFor(o)), m = matchLevel(o.artist, [o.city]);
+      if (pop.tooSmall || (!pop.unverified && pop.rank < state.size) || !m) return;
+      // One card per sale (presale waves, public on-sale), like Ticketmaster's.
+      oSales(o).forEach((sale) => {
+        const ms = sale.start ? Date.parse(sale.start) : null;
+        if (ms == null || ms >= cutoff) out.push({ o, sale, ms, n: pop.n, m, u: !!pop.unverified, key: o.artist + o.date + o.venue + (sale.start || '') });
+      });
+    });
+    const best = out.some((r) => r.m === 2) ? out.filter((r) => r.m === 2) : out;
+    return best.sort((a, b) => (a.ms == null) - (b.ms == null) || (a.ms - b.ms) || b.n - a.n);
+  }
+
+  // The presale's own Ticketmaster link if there is one, otherwise the show's page.
+  function saleLink(show, sale) {
+    const p = (show.presales || []).find((x) => x.start === sale.start && safe(x.url, 'https://'));
+    return (p && p.url) || safe(show.url, 'https://');
+  }
+
+  // Ontario shows can carry resale limits (some can't be resold above face value): a heads-up only.
+  const isOntario = (x) => (x.state || '').toUpperCase() === 'ON';
+  function ontarioTag() {
+    const t = el('span', 'Ontario: check resale rules', 'badge b-vf');
+    t.title = 'Ontario shows can have resale limits (some cannot be resold above face value). Check before buying to resell.';
+    return t;
+  }
+
+  // Seat map for a show: its own Ticketmaster map, else one from another event we have at the same venue
+  // (AXS/SeatGeek shows usually have none of their own).
+  const venueKey = (s) => (s.venue || '').toLowerCase().replace(/[^a-z0-9]/g, '') + '|' + (s.city || '').toLowerCase();
+  let venueMaps = null;
+  function seatMapFor(x) {
+    const own = safe(x.seatmap, 'https://');
+    if (own) return { img: own, borrowed: false };
+    if (!venueMaps) {
+      venueMaps = new Map();
+      const add = (s) => { const u = safe(s.seatmap, 'https://'); if (u && s.venue && !venueMaps.has(venueKey(s))) venueMaps.set(venueKey(s), u); };
+      DATA.tours.forEach((t) => t.shows.forEach(add));
+      (DATA.priority || []).forEach(add);
+    }
+    const img = x.venue && venueMaps.get(venueKey(x));
+    if (img) return { img, borrowed: true };
+    // AXS/SeatGeek venues: the seating chart from the venue's own website.
+    const chart = safe(x.venue_chart, 'https://');
+    if (chart && x.venue_chart_tm) return { img: chart, borrowed: true };  // Ticketmaster map of another event there
+    return chart ? { img: chart, venueSite: true, page: safe(x.venue_chart_page, 'https://') } : null;
+  }
+  // One labelled seat map per venue, for a card's details.
+  function mapDetails(shows) {
+    const out = [], seen = new Set();
+    shows.forEach((x) => {
+      const m = seatMapFor(x);
+      if (!m || seen.has(venueKey(x))) return;
+      seen.add(venueKey(x));
+      const note = m.borrowed ? ' · from another event here, layout can differ' : m.venueSite ? " · the venue's own chart" : '';
+      out.push([`Seat map, ${x.venue}${x.city ? ' (' + x.city + ')' : ''}${note}`, { img: m.img }]);
+    });
+    return out;
+  }
+
+  function showItem(x, url, label) {
+    const li = el('li');
+    const d = el('span', showDate(x.date), 'sd');
+    if (isWeekend(x.date)) d.appendChild(el('small', 'WEEKEND'));
+    li.appendChild(d);
+    const v = el('span', null, 'sv');
+    v.appendChild(el('b', x.venue || 'Venue TBA'));
+    v.appendChild(el('span', [x.city, x.state].filter(Boolean).join(', ')));
+    if (isOntario(x)) { const w = el('span', null, 'row-tags'); w.appendChild(ontarioTag()); v.appendChild(w); }
+    li.appendChild(v);
+    li.appendChild(url ? link(label, url, 'go') : el('span'));
+    return li;
+  }
+
+  // spec: {key, ms, est, seller, labels, artist, tour, shows:[[show, url, label]], details:[[title, text]], whenText}
+  function card(spec) {
+    const c = el('div', null, 'card');
+    const r1 = el('div', null, 'row1'), badges = el('div', null, 'badges');
+    badges.appendChild(el('span', spec.seller, 'seller ' + sellerClass(spec.seller)));
+    (spec.tags || []).forEach(([text, cls, tip]) => { const b = el('span', text, 'badge ' + cls); if (tip) b.title = tip; badges.appendChild(b); });
+    spec.labels.forEach((l) => { const [k, name] = kind(l, spec.artist); badges.appendChild(el('span', name, 'badge b-' + k)); });
+    if (spec.est) badges.appendChild(el('span', 'Time estimated', 'badge b-other'));
+    r1.appendChild(badges);
+    const clk = el('span', spec.ms == null ? 'On sale soon' : '', 'clock');
+    if (spec.ms != null) { clk.dataset.clock = spec.ms; clk.dataset.est = spec.est ? '1' : '0'; }
+    r1.appendChild(clk);
+    c.appendChild(r1);
+
+    const r2 = el('div', null, 'row2');
+    const name = el('button', spec.artist, 'artist artist-link');
+    name.title = 'See all upcoming shows';
+    name.onclick = () => { state.artist = spec.artist; window.scrollTo(0, 0); render(); };
+    r2.appendChild(name);
+    const pop = popularity(spec.tour);
+    if (pop.rank) r2.appendChild(el('span', SIZE_NAME[pop.rank], 'pop ' + SIZE_CLASS[pop.rank]));
+    if (pop.text) {
+      const sp = safe(spec.tour && spec.tour.spotify_url, 'https://open.spotify.com/artist/');
+      r2.appendChild(sp ? link(pop.text, sp, 'listen') : el('span', pop.text, 'listen'));
+    }
+    c.appendChild(r2);
+    c.appendChild(el('div', spec.whenText, 'when'));
+
+    const ul = el('ul', null, 'shows'), expanded = state.open.has(spec.key);
+    spec.shows.slice(0, expanded ? spec.shows.length : SHOWN).forEach(([x, url, label]) => ul.appendChild(showItem(x, url, label)));
+    c.appendChild(ul);
+    const foot = el('div');
+    if (spec.shows.length > SHOWN) {
+      const b = el('button', expanded ? 'Show fewer' : `+ ${spec.shows.length - SHOWN} more shows`, 'more');
+      b.onclick = () => { if (expanded) state.open.delete(spec.key); else state.open.add(spec.key); render(); };
+      foot.appendChild(b);
+    }
+    const openKey = 'd:' + spec.key, isOpen = state.open.has(openKey);
+    if (spec.details.length) {
+      const b = el('button', isOpen ? 'Hide details' : 'Details', 'info');
+      b.onclick = () => { if (isOpen) state.open.delete(openKey); else state.open.add(openKey); render(); };
+      foot.appendChild(b);
+    }
+    if (foot.childNodes.length) c.appendChild(foot);
+    if (isOpen) {
+      const d = el('div', null, 'details');
+      spec.details.forEach(([title, text]) => {
+        const line = el('div');
+        line.appendChild(el('b', title + ': '));
+        if (text && text.img) {
+          const img = el('img'); img.src = text.img; img.alt = 'Seat map'; img.loading = 'lazy';
+          line.appendChild(img);
+        } else line.appendChild(document.createTextNode(text));
+        d.appendChild(line);
+      });
+      c.appendChild(d);
+    }
+    return c;
+  }
+
+  // "New tour" / "Added date" (other dates of this tour already on sale), plus "Earlier sale done"
+  // when a presale for these shows has already happened.
+  // "Limit 4" from the shows' ticket limits (the most common one if they differ).
+  function limitTag(shows, seller) {
+    const ns = shows.map((x) => x.limit_n).filter((n) => n);
+    if (ns.length) return [`Limit ${mostCommon(ns.map(String))}`, 'b-other', 'Ticket limit per customer, from the listing.'];
+    if (seller === 'SeatGeek' || seller === 'AXS') return [`Limit: check ${seller}`, 'b-other', `The ticket limit is only shown on ${seller}'s own page.`];
+    return null;
+  }
+
+  function statusTags(status, earlierDone, justAdded) {
+    const tags = [];
+    if (justAdded) tags.push(['Just added', 'b-vf', 'A show here first appeared in the last 48 hours.']);
+    if (status === 'new') tags.push(['New tour', 'b-new', 'First time any date on this tour goes on sale.']);
+    if (status === 'added') tags.push(['Added date', 'b-added', 'A new show added to a tour that is already on sale. Check how the earlier dates did.']);
+    if (earlierDone) tags.push(['Earlier sale done', 'b-other', 'This exact show already had a presale, so some tickets are already sold.']);
+    return tags;
+  }
+  function statusDetail(status) {
+    if (status === 'new') return ['Tour', 'New tour: none of its other dates are on sale yet.'];
+    if (status === 'added') return ['Tour', 'Added date: other dates on this tour are already on sale.'];
+    return null;
+  }
+
+  const whenAt = (ms) => `${fShort.format(new Date(ms))} at ${fTime.format(new Date(ms))} · queue opens ${fTime.format(new Date(ms - LEAD * 60000))}`;
+
+  function tmSpec({ t, s, ms, key }) {
+    const pub = isPublic(s.labels), details = [];
+    if (t.reasons && t.reasons.length) details.push(['Why', t.reasons.join(' · ')]);
+    const others = t.sales.filter((x) => x !== s);
+    if (others.length) details.push(['Other sales', others.map((x) => `${(x.labels || x.label.split(' / ')).map((l) => kind(l, t.artist)[1]).join(' / ')} ${fShort.format(new Date(x.start))} ${fTime.format(new Date(x.start))}`).join(' · ')]);
+    const faces = t.shows.filter((x) => x.face_min != null);
+    if (faces.length) details.push(['Face value', `$${Math.min(...faces.map((x) => x.face_min)).toFixed(0)}–$${Math.max(...faces.map((x) => x.face_max)).toFixed(0)}`]);
+    const notes = new Set();
+    t.shows.forEach((x) => (x.presales || []).forEach((p) => { if (p.start === s.start && p.description) notes.add(p.description); }));
+    notes.forEach((n) => details.push(['How to get in', n]));
+    const now = Date.now();
+    const earlierDone = t.shows.filter((x) => s.shows.includes(x.id)).some((x) =>
+      [...(x.presales || []).map((p) => p.start), x.public_start].some((st) => st && st !== s.start && Date.parse(st) < now));
+    const sd = statusDetail(t.tour_status);
+    if (sd) details.unshift(sd);
+    mapDetails(t.shows.filter((x) => s.shows.includes(x.id))).forEach((d) => details.push(d));
+    return {
+      key, ms, est: false, seller: 'Ticketmaster', labels: s.labels, artist: t.artist, tour: t, details, whenText: whenAt(ms),
+      tags: [...statusTags(t.tour_status, earlierDone, (t.all_shows || []).some((x) => x.just_added && s.shows.includes(x.id))),
+        limitTag(t.shows.filter((x) => s.shows.includes(x.id)), 'Ticketmaster')].filter(Boolean),
+      shows: t.shows.filter((x) => s.shows.includes(x.id)).map((x) => [x, saleLink(x, s), pub ? 'Tickets' : 'Presale']),
+    };
+  }
+
+  // An AXS/SeatGeek show's sales: [{start, labels, estimated}] (older data had only the first one).
+  const oSales = (o) => (o.sales && o.sales.length ? o.sales
+    // (sale_estimated = time taken from the tour's Ticketmaster sale; `estimated` here means a guessed wave)
+    : [{ start: o.sale_start, labels: o.sale_labels || [], estimated: false }]);
+
+  function otherSpec({ o, sale, ms, key }) {
+    sale = sale || oSales(o)[0];
+    const est = !!(sale.estimated || o.sale_estimated);
+    const known = o.seller === 'SeatGeek' || o.seller === 'AXS', where = known ? o.seller : 'the seller';
+    const t = tourFor(o);
+    let url = safe(o.url, 'https://seatgeek.com/'), label = 'SeatGeek';
+    if (safe(o.url, 'https://www.axs.com/')) { url = o.url; label = 'AXS'; }
+    else if (!url) { url = 'https://www.axs.com/search?q=' + encodeURIComponent(o.artist); label = 'Find on AXS'; }
+    let whenText = `Not on sale yet · sale time not announced, check ${where}`;
+    if (ms != null && sale.estimated) whenText = `Expected ${fShort.format(new Date(ms))} around ${fTime.format(new Date(ms))} (the rest of the tour has this wave at the same gap) · check ${where} for the exact time`;
+    else if (ms != null && est) whenText = `Expected ${fShort.format(new Date(ms))} around ${fTime.format(new Date(ms))} (same as this tour's Ticketmaster sale) · check ${where} for the exact time`;
+    else if (ms != null) whenText = whenAt(ms);
+    else if (o.tm_sale) whenText = `Not on sale yet · this tour's Ticketmaster sale is ${fShort.format(new Date(o.tm_sale))} ${fTime.format(new Date(o.tm_sale))}`;
+    const details = [];
+    if (o.sale_from_tm) details.push(['Sale time', sale.estimated ? "Estimated: Ticketmaster's listing of this show doesn't have this wave, but every other show on the tour does, at the same gap after the first presale."
+      : "From Ticketmaster's listing of this show."]);
+    const others = oSales(o).filter((x) => x.start && x.start !== sale.start);
+    if (others.length) details.push(['Other sales', others.map((x) => `${x.estimated ? '≈ ' : ''}${x.labels.map((l) => kind(l, o.artist)[1]).join(' / ')} ${fShort.format(new Date(x.start))} ${fTime.format(new Date(x.start))}`).join(' · ')]);
+    if (t && t.reasons && t.reasons.length) details.push(['Why', t.reasons.join(' · ')]);
+    const sd = statusDetail(o.tour_status);
+    if (sd) details.unshift(sd);
+    details.push(['Ticket limit', o.ticket_limit || `Not listed here: check ${where} before the sale.`]);
+    if (o.face_min != null) details.push(['Face value', `$${o.face_min.toFixed(0)}–$${o.face_max.toFixed(0)}`]);
+    const maps = mapDetails([o]);
+    if (maps.length) maps.forEach((d) => details.push(d));
+    else details.push(['Seat map', `None found for ${o.venue || 'this venue'}: open the ${known ? o.seller : 'seller'} page (button above) to see it.`]);
+    return { key, ms, est, seller: known ? o.seller : 'SeatGeek/AXS', labels: sale.labels || [],
+      tags: [...statusTags(o.tour_status, false, !!o.just_added), limitTag([o], known ? o.seller : 'AXS'),
+        (sale.labels || []).length ? null : ['Sale type not listed', 'b-other', `Not known whether this is an artist presale, another presale or the general sale. Check ${where}.`]].filter(Boolean),
+      artist: o.artist, tour: t, details, whenText, shows: [[o, url, label]] };
+  }
+
+  const mostCommon = (xs) => { const c = {}; xs.forEach((x) => { c[x] = (c[x] || 0) + 1; }); return Object.keys(c).sort((a, b) => c[b] - c[a])[0]; };
+  function section(title, fill, open) {
+    const d = el('details', null, 'sec');
+    if (open) d.open = true;
+    d.appendChild(el('summary', title));
+    fill(d);
+    return d;
+  }
+
+  // One artist, cook-group style: header, quick facts, sale schedule by time, then collapsible
+  // sections (all shows, seat maps, Ticketmaster's notes, how to get in). Facts only, no guesses.
+  function renderArtist(box) {
+    const name = state.artist, lower = name.toLowerCase();
+    const t = DATA.tours.find((x) => x.artist.toLowerCase() === lower);
+    const prio = (DATA.priority || []).filter((o) => o.artist.toLowerCase() === lower);
+    const head = el('div', null, 'artist-head');
+    const back = el('button', '← Back', 'back');
+    back.onclick = () => { state.artist = null; render(); };
+    head.appendChild(back);
+    head.appendChild(el('span', name, 'artist'));
+    const ptour = t || tourFor({ artist: name });
+    const pop = popularity(ptour);
+    if (pop.rank) head.appendChild(el('span', SIZE_NAME[pop.rank], 'pop ' + SIZE_CLASS[pop.rank]));
+    if (pop.text) {
+      const sp = safe(ptour && ptour.spotify_url, 'https://open.spotify.com/artist/');
+      head.appendChild(sp ? link(pop.text, sp, 'listen') : el('span', pop.text, 'listen'));
+    }
+    const genre = t && (t.shows.find((s) => s.genre) || {}).genre;
+    if (genre) head.appendChild(el('span', genre, 'listen'));
+    box.appendChild(head);
+
+    const list = artistShows(t, prio);
+    const added = list.filter((r) => r.just_added).length;
+
+    // Quick facts on one line, straight from Ticketmaster's listings.
+    const facts = [];
+    const allShows = [...(t ? t.shows : []), ...prio];
+    const ns = allShows.map((s) => s.limit_n).filter(Boolean);
+    const limits = allShows.map((s) => s.ticket_limit).filter(Boolean);
+    if (ns.length) facts.push(['Limit', `${mostCommon(ns.map(String))} per person`, mostCommon(limits)]);
+    else if (limits.length) facts.push(['Limit', mostCommon(limits)]);
+    const axsSg = [...new Set(prio.filter((o) => !o.limit_n).map((o) => o.seller))].filter((s) => s === 'AXS' || s === 'SeatGeek');
+    if (axsSg.length) facts.push([`${axsSg.join('/')} limit`, `check on ${axsSg.join('/')}`]);
+    const faces = allShows.filter((s) => s.face_min != null);
+    if (faces.length) facts.push(['Face', `$${Math.min(...faces.map((s) => s.face_min)).toFixed(0)}–$${Math.max(...faces.map((s) => s.face_max)).toFixed(0)}`]);
+    if (t && t.tour_status) facts.push(['Tour', t.tour_status === 'new' ? 'New tour' : 'Added dates']);
+    facts.push(['Shows', `${list.length}` + (added ? ` (${added} just added)` : '')]);
+    if (t && t.shows.some((s) => s.safetix)) facts.push(['Tickets', 'SafeTix mobile']);
+    const fb = el('div', null, 'facts-line');
+    facts.forEach(([k, v, tip]) => { const f = el('span', k + ': '); f.appendChild(el('b', v)); if (tip) f.title = tip; fb.appendChild(f); });
+    if (list.some(isOntario)) { const f = el('span', null, 'warn'); f.appendChild(el('b', 'Ontario shows: check resale rules')); fb.appendChild(f); }
+    box.appendChild(fb);
+
+    const inSchedule = renderSchedule(box, t, prio);
+
+    // Only the dates NOT already in the schedule above: on sale already, or no sale date yet.
+    const showKey = (r) => r.date + '|' + (r.venue || '').toLowerCase();
+    const other = list.filter((r) => !inSchedule.has(showKey(r)) && sellerOn(r.seller || 'Ticketmaster'));
+    if (other.length) box.appendChild(section(`Other dates: already on sale or no sale date yet (${other.length})`,
+      (d) => d.appendChild(allShowsList(other)), !inSchedule.size));
+    if (!inSchedule.size && !other.length) box.appendChild(el('div', 'No shows for the sellers you have selected.', 'empty'));
+
+    // (Seat maps live on each show's tile in the schedule above.)
+
+    // Presales with the same instructions are one entry, whatever each show calls them
+    // ("Artist Presale - Wave 1" / "Artist Presale Wave 1", "Citi Cardmember Presale" / "...Preferred Tickets").
+    const how = new Map();
+    const plain = (s) => (s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+    const tidy = (l) => l.replace(/\s+-\s+/g, ' ').replace(/\s+/g, ' ').trim();
+    (t ? t.shows : []).forEach((s) => (s.presales || []).forEach((p) => {
+      if (!p.description && !p.url) return;
+      const k = plain(p.description) || plain(p.label);
+      const e = how.get(k) || { labels: new Map(), description: p.description, url: '' };
+      e.labels.set(plain(p.label), tidy(p.label));
+      if (!e.url) e.url = safe(p.url, 'https://');
+      how.set(k, e);
+    }));
+    if (how.size) box.appendChild(section('How to get in (presales)', (d) => {
+      how.forEach((e) => {
+        const w = el('p');
+        w.appendChild(el('b', [...e.labels.values()].join(' · ') + ': '));
+        w.appendChild(document.createTextNode(e.description || ''));
+        if (e.url) { w.appendChild(document.createTextNode(' ')); w.appendChild(link('Presale page', e.url)); }
+        d.appendChild(w);
+      });
+    }));
+  }
+
+  // Is this seller ticked at the top? (Unknown AXS/SeatGeek counts if either is ticked.)
+  function sellerOn(seller) {
+    if (seller === 'Ticketmaster' || seller === 'SeatGeek' || seller === 'AXS') return state.sellers.has(seller);
+    return state.sellers.has('SeatGeek') || state.sellers.has('AXS');
+  }
+
+  // Sale schedule grouped by day then time (like the cook group's info posts), for the ticked sellers.
+  // Returns the shows it listed (date|venue) so the "Other dates" list doesn't repeat them.
+  function renderSchedule(box, t, prio) {
+    const cutoff = Date.now() - 2 * 3600000, items = [], listed = new Set();
+    if (sellerOn('Ticketmaster')) (t ? t.sales : []).forEach((s) => {
+      const ms = Date.parse(s.start);
+      if (ms < cutoff) return;
+      if (!s.labels) s.labels = s.label.split(' / ');
+      items.push({ ms, seller: 'Ticketmaster', labels: s.labels, est: false,
+        shows: t.shows.filter((x) => s.shows.includes(x.id)).map((x) => [x, saleLink(x, s), isPublic(s.labels) ? 'Tickets' : 'Presale',
+          showSaleNames(x, s.start, t.artist)]) });
+    });
+    prio.forEach((o) => {
+      if (!sellerOn(o.seller)) return;
+      const url = safe(o.url, 'https://seatgeek.com/') || safe(o.url, 'https://www.axs.com/');
+      const show = [o, url || 'https://www.axs.com/search?q=' + encodeURIComponent(o.artist)];
+      oSales(o).forEach((sale) => {
+        const ms = sale.start ? Date.parse(sale.start) : null, est = !!(sale.estimated || o.sale_estimated);
+        if (ms != null && ms < cutoff) return;
+        // AXS/SeatGeek dates selling at the same time go in one slot.
+        const key = (sale.labels || []).join('/');
+        const same = items.find((it) => it.ms === ms && it.seller === o.seller && it.est === est && it.labels.join('/') === key);
+        if (same) same.shows.push(show);
+        else items.push({ ms, seller: o.seller, labels: sale.labels || [], est, wave: !!sale.estimated, shows: [show] });
+      });
+    });
+    if (!items.length) return listed;
+    items.forEach((it) => it.shows.forEach(([x]) => listed.add(x.date + '|' + (x.venue || '').toLowerCase())));
+    items.sort((a, b) => (a.ms == null) - (b.ms == null) || a.ms - b.ms);
+    box.appendChild(el('div', 'Sale schedule', 'day'));
+    // One box per day, so the days stand apart and same-day sales sit together.
+    let card = null, day = '';
+    items.forEach((it) => {
+      const dl = it.ms == null ? 'On sale soon · time not announced' : fDay.format(new Date(it.ms));
+      if (dl !== day) {
+        day = dl;
+        card = el('div', null, 'card sched');
+        card.appendChild(el('div', dl, 'sched-day'));
+        box.appendChild(card);
+      }
+      const slot = el('div', null, 'slot');
+      // Left: sale time and when the queue opens.
+      const tm = el('div', null, 'slot-time');
+      if (it.ms != null) {
+        tm.appendChild(el('b', `${it.est ? '≈ ' : ''}${fTime.format(new Date(it.ms))}`));
+        tm.appendChild(el('small', `queue ${fTime.format(new Date(it.ms - LEAD * 60000))}`));
+      } else tm.appendChild(el('b', 'TBA'));
+      slot.appendChild(tm);
+      // Right: seller + presale names on one line, then one tile per show.
+      const body = el('div');
+      const what = el('div', null, 'slot-what');
+      what.appendChild(el('span', it.seller, 'seller ' + sellerClass(it.seller)));
+      const names = it.labels.map((l) => kind(l, state.artist)[1]);
+      if (names.length) what.appendChild(el('span', names.join(' · '), 'names'));
+      else what.appendChild(el('span', 'Sale type not listed', 'names'));
+      if (it.wave) what.appendChild(el('span', `estimated from the rest of the tour, check ${it.seller}`));
+      else if (it.est) what.appendChild(el('span', `time from Ticketmaster, check ${it.seller}`));
+      else if (!names.length && it.seller !== 'Ticketmaster') what.appendChild(el('span', `check ${it.seller}`));
+      body.appendChild(what);
+      const tiles = el('div', null, 'tiles'), mapBox = el('div', null, 'slot-map');
+      // Several presale names in one slot: each show box names its own (e.g. Houston = Live Nation Presale).
+      const perShow = it.labels.length > 1;
+      it.shows.forEach(([x, url, , names]) => tiles.appendChild(showTile(x, url, mapBox, it.seller, perShow ? names : null)));
+      body.appendChild(tiles);
+      body.appendChild(mapBox);
+      slot.appendChild(body);
+      card.appendChild(slot);
+    });
+    return listed;
+  }
+
+  const priceText = (x) => (x.face_min != null ? `$${x.face_min.toFixed(0)}–$${x.face_max.toFixed(0)}` : '');
+
+  // A small box for one show: date, city, venue, price. Clicking it opens the show's panel under the
+  // slot: venue layout, prices, limit and the button to the sale.
+  // This show's own presale names for a sale time (Ticketmaster names the same window differently per show).
+  function showSaleNames(x, start, artist) {
+    const names = (x.presales || []).filter((p) => p.start === start).map((p) => kind(p.label, artist)[1]);
+    if (x.public_start === start) names.push('General sale');
+    return [...new Set(names)];
+  }
+
+  function showTile(x, url, panel, seller, names) {
+    const tile = el('button', null, 'tile');
+    tile.appendChild(el('b', showDate(x.date)));
+    if (isWeekend(x.date)) tile.appendChild(el('small', 'WKND', 'wk'));
+    tile.appendChild(el('span', [x.city, x.state].filter(Boolean).join(', ') || 'City TBA'));
+    tile.appendChild(el('span', x.venue || 'Venue TBA'));
+    if (names && names.length) { const n = el('span', names.join(' · '), 'pn'); n.title = names.join(' · '); tile.appendChild(n); }
+    if (priceText(x)) tile.appendChild(el('span', priceText(x), 'price'));
+    if (isOntario(x)) tile.appendChild(el('span', 'Ontario: check resale rules', 'on'));
+    tile.onclick = () => {
+      const open = tile.classList.contains('on');
+      panel.textContent = '';
+      panel.parentElement.querySelectorAll('.tile.on').forEach((b) => b.classList.remove('on'));
+      if (!open) { tile.classList.add('on'); fillShowPanel(panel, x, url, seller); }
+    };
+    return tile;
+  }
+
+  function fillShowPanel(panel, x, url, seller) {
+    const head = el('div', null, 'panel-head');
+    head.appendChild(el('b', `${x.venue || 'Venue TBA'}${x.city ? ', ' + x.city : ''}${x.state ? ', ' + x.state : ''} · ${showDate(x.date)}`));
+    if (url) head.appendChild(link(`Open on ${seller}`, url, 'go'));
+    panel.appendChild(head);
+    const facts = el('div', null, 'facts-line');
+    const fact = (k, v) => { const f = el('span', k + ': '); f.appendChild(el('b', v)); facts.appendChild(f); };
+    const limit = x.limit_n ? `${x.limit_n} per person` : x.ticket_limit || '';
+    if (!priceText(x) && !limit && seller !== 'Ticketmaster') fact('Face value and limit', `only on ${seller}'s page`);
+    else {
+      fact('Face value', priceText(x) || 'not listed yet');
+      fact('Limit', limit || `check ${seller}`);
+    }
+    if (isWeekend(x.date)) fact('Night', 'weekend');
+    panel.appendChild(facts);
+    const m = seatMapFor(x);
+    const chartPage = safe(x.venue_chart_page, 'https://');
+    const noMap = () => {
+      const d = el('div', `No venue layout for ${x.venue || 'this venue'} here. `, 'listen');
+      if (chartPage) d.appendChild(link("Seating chart on the venue's website", chartPage));
+      else if (url) d.appendChild(document.createTextNode(`It's on the ${seller} page.`));
+      return d;
+    };
+    if (m) {
+      if (m.borrowed) panel.appendChild(el('div', 'Layout from another event at this venue; it can differ for this show.', 'listen'));
+      if (m.venueSite) panel.appendChild(el('div', "Seating chart from the venue's own website; some shows (GA floor, smaller setups) use a different layout.", 'listen'));
+      const img = el('img'); img.src = m.img; img.alt = 'Seat map for ' + x.venue; img.loading = 'lazy';
+      img.onerror = () => img.replaceWith(noMap());
+      panel.appendChild(img);
+    } else panel.appendChild(noMap());
+  }
+
+  // Ticketmaster's full show list for the artist, merged with AXS/SeatGeek dates we found.
+  function artistShows(t, prio) {
+    const rows = (t && t.all_shows || []).map((s) => Object.assign({}, s));
+    const key = (r) => r.date + '|' + (r.venue || '').toLowerCase();
+    prio.forEach((o) => {
+      const r = rows.find((x) => key(x) === key(o));
+      const fields = { seller: o.seller, url: o.url || (r && r.url) || '',
+        sale: o.sale_start || (r && r.sale), status: o.sale_start ? 'upcoming' : 'soon', estimated: !!o.sale_estimated,
+        just_added: !!(o.just_added || (r && r.just_added)) };
+      if (r) Object.assign(r, fields);
+      else rows.push(Object.assign({ date: o.date, venue: o.venue, city: o.city, state: o.state, country: '' }, fields));
+    });
+    const today = new Date().toISOString().slice(0, 10);
+    return rows.filter((r) => r.date >= today).sort((a, b) => a.date.localeCompare(b.date));
+  }
+
+  function allShowsList(list) {
+    const ul = el('ul', null, 'shows all');
+    list.forEach((r) => {
+      const li = el('li');
+      const d = el('span', showDate(r.date), 'sd');
+      if (isWeekend(r.date)) d.appendChild(el('small', 'WEEKEND'));
+      li.appendChild(d);
+      const v = el('span', null, 'sv');
+      v.appendChild(el('b', r.venue || 'Venue TBA'));
+      const place = [r.city, r.state, r.country && !['US', 'CA'].includes(r.country) ? r.country : ''].filter(Boolean).join(', ');
+      const line = el('span', place);
+      v.appendChild(line);
+      const tags = el('span', null, 'row-tags');
+      tags.appendChild(el('span', r.seller || 'Ticketmaster', 'seller ' + sellerClass(r.seller || 'Ticketmaster')));
+      if (r.just_added) tags.appendChild(el('span', 'Just added', 'badge b-vf'));
+      if (isOntario(r)) tags.appendChild(ontarioTag());
+      const status = r.status === 'onsale' ? 'On sale'
+        : r.status === 'upcoming' && r.sale ? `${r.estimated ? '≈ ' : ''}Sale ${fShort.format(new Date(r.sale))} ${fTime.format(new Date(r.sale))}`
+        : r.status === 'soon' ? 'On sale soon' : 'Sale date TBA';
+      tags.appendChild(el('span', status, 'badge ' + (r.status === 'onsale' ? 'b-public' : 'b-other')));
+      v.appendChild(tags);
+      li.appendChild(v);
+      li.appendChild(r.url ? link(r.seller === 'AXS' ? 'AXS' : r.seller === 'SeatGeek' ? 'SeatGeek' : 'Tickets', r.url, 'go') : el('span'));
+      ul.appendChild(li);
+    });
+    return ul;
+  }
+
+  function renderList(box, list) {
+    if (!list.length) { box.appendChild(el('div', 'Nothing matches. Try All, other sellers, or a different search.', 'empty')); return; }
+    let day = '';
+    list.forEach((r) => {
+      const dl = r.ms == null ? 'On sale soon · time not announced' : fDay.format(new Date(r.ms));
+      if (dl !== day) { day = dl; box.appendChild(el('div', dl, 'day')); }
+      box.appendChild(card(r.o ? otherSpec(r) : tmSpec(r)));
+    });
+  }
+
+  function renderCalendar(box, list) {
+    list = list.filter((r) => r.ms != null);
+    const byDay = {};
+    list.forEach((r) => { const k = dayKey(new Date(r.ms)); (byDay[k] = byDay[k] || []).push(r); });
+    if (!state.month) { const n = new Date(); state.month = new Date(n.getFullYear(), n.getMonth(), 1); }
+    const m = state.month;
+    const head = el('div', null, 'cal-head');
+    const prev = el('button', '‹'), next = el('button', '›'), today = el('button', 'Today');
+    prev.setAttribute('aria-label', 'Previous month'); next.setAttribute('aria-label', 'Next month');
+    prev.onclick = () => { state.month = new Date(m.getFullYear(), m.getMonth() - 1, 1); render(); };
+    next.onclick = () => { state.month = new Date(m.getFullYear(), m.getMonth() + 1, 1); render(); };
+    today.onclick = () => { const n = new Date(); state.month = new Date(n.getFullYear(), n.getMonth(), 1); state.sel = dayKey(n); render(); };
+    head.appendChild(el('div', fMonth.format(m), 'month'));
+    [today, prev, next].forEach((b) => head.appendChild(b));
+    box.appendChild(head);
+    const grid = el('div', null, 'grid');
+    ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach((d) => grid.appendChild(el('div', d, 'dow')));
+    const start = new Date(m.getFullYear(), m.getMonth(), 1 - m.getDay()), todayKey = dayKey(new Date());
+    const name = (r) => (r.t ? r.t.artist : r.o.artist);
+    for (let i = 0; i < 42; i++) {
+      const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i), k = dayKey(d), items = byDay[k] || [];
+      if (i >= 35 && d.getMonth() !== m.getMonth()) break;
+      const cell = el('button', null, 'cell' + (d.getMonth() !== m.getMonth() ? ' out' : '') + (k === todayKey ? ' today' : '') + (k === state.sel ? ' sel' : ''));
+      cell.setAttribute('aria-label', `${fDay.format(d)}: ${items.length} sale${items.length === 1 ? '' : 's'}`);
+      cell.appendChild(el('span', String(d.getDate()), 'num'));
+      const seen = new Set(), uniq = items.filter((r) => !seen.has(name(r)) && seen.add(name(r)));
+      uniq.slice(0, 3).forEach((r) => cell.appendChild(el('span', name(r), 'ev')));
+      if (uniq.length > 3) cell.appendChild(el('span', `+${uniq.length - 3}`, 'more-n'));
+      if (uniq.length) cell.appendChild(el('span', String(uniq.length), 'count'));
+      cell.onclick = () => { state.sel = k; render(); };
+      grid.appendChild(cell);
+    }
+    box.appendChild(grid);
+    if (state.sel) renderList(box, byDay[state.sel] || []);
+    else box.appendChild(el('div', 'Tap a day to see its sales.', 'empty'));
+  }
+
+  // Dashboard: an overview, not another full list (List and Calendar have every sale).
+  // Follows the seller chips, the size slider and the search like the other views.
+  function saleInfo(r) {
+    if (r.t) return { seller: 'Ticketmaster', artist: r.t.artist, tour: r.t, labels: r.s.labels, est: false,
+      shows: r.t.shows.filter((x) => r.s.shows.includes(x.id)) };
+    const sale = r.sale || oSales(r.o)[0], known = r.o.seller === 'SeatGeek' || r.o.seller === 'AXS';
+    return { seller: known ? r.o.seller : 'SeatGeek/AXS', artist: r.o.artist, tour: tourFor(r.o), labels: sale.labels || [],
+      est: !!(sale.estimated || r.o.sale_estimated), shows: [r.o] };
+  }
+  const openArtist = (name) => { state.artist = name; closeSide(); window.scrollTo(0, 0); render(); };
+  function artistButton(name) {
+    const b = el('button', name, 'artist artist-link');
+    b.title = 'See all upcoming shows';
+    b.onclick = () => openArtist(name);
+    return b;
+  }
+  function sizePill(tour) {
+    const pop = popularity(tour);
+    return pop.rank ? el('span', SIZE_NAME[pop.rank], 'pop ' + SIZE_CLASS[pop.rank]) : null;
+  }
+  function drow(left, top, sub, right) {
+    const row = el('div', null, 'drow');
+    const l = el('div', null, 'dt'), m = el('div'), r = el('div', null, 'dright');
+    left.forEach((n) => n && l.appendChild(n));
+    const t = el('div', null, 'dtop');
+    top.forEach((n) => n && t.appendChild(n));
+    m.appendChild(t);
+    if (sub) m.appendChild(el('div', sub, 'dsub'));
+    right.forEach((n) => n && r.appendChild(n));
+    [l, m, r].forEach((n) => row.appendChild(n));
+    return row;
+  }
+  // One sale: time + queue on the left, seller / artist / size, presale names + where, live countdown.
+  function saleRow(r) {
+    const s = saleInfo(r);
+    const left = r.ms == null ? [el('b', 'TBA'), el('small', 'On sale soon')]
+      : [el('b', `${s.est ? '≈ ' : ''}${fTime.format(new Date(r.ms))}`), el('small', fShort.format(new Date(r.ms)))];
+    const where = s.shows.length === 1 ? [s.shows[0].venue, s.shows[0].city].filter(Boolean).join(', ')
+      : (() => { const c = [...new Set(s.shows.map((x) => x.city).filter(Boolean))];
+        return c.slice(0, 2).join(', ') + (c.length > 2 ? ` +${c.length - 2} more` : ''); })();
+    const names = s.labels.map((l) => kind(l, s.artist)[1]).join(' · ') || 'Sale type not listed';
+    let clk = null;
+    if (r.ms != null) { clk = el('span', '', 'clock'); clk.dataset.clock = r.ms; clk.dataset.est = s.est ? '1' : '0'; }
+    return drow(left, [el('span', s.seller, 'seller ' + sellerClass(s.seller)), artistButton(s.artist), sizePill(s.tour)],
+      [names, where].filter(Boolean).join(' · '), [clk]);
+  }
+  // A box with a title, its rows, and "+ N more" past `max` (opens in place).
+  function dbox(id, title, note, items, max, makeRow, none) {
+    const b = el('div', null, 'dbox');
+    b.id = id;
+    const h = el('h2', title);
+    if (note) h.appendChild(el('small', note));
+    b.appendChild(h);
+    if (!items.length) { b.appendChild(el('div', none, 'dnone')); return b; }
+    const open = state.open.has('dash:' + id);
+    items.slice(0, open ? items.length : max).forEach((x) => b.appendChild(makeRow(x)));
+    if (items.length > max) {
+      const more = el('button', open ? 'Show fewer' : `+ ${items.length - max} more`, 'more');
+      more.onclick = () => { if (open) state.open.delete('dash:' + id); else state.open.add('dash:' + id); render(); };
+      b.appendChild(more);
+    }
+    return b;
+  }
+
+  function renderDash(box, list) {
+    const now = Date.now(), today = new Date(), tomorrow = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+    const onDay = (d) => list.filter((r) => r.ms != null && r.ms >= now - 2 * 3600000 && dayKey(new Date(r.ms)) === dayKey(d)).length;
+    const nextUp = list.filter((r) => r.ms != null && r.ms > now).slice(0, 5);
+    const others = list.filter((r) => r.o);
+    // Just added: shows first seen in the last 48 hours, for the artists the filters show.
+    // (Ticketmaster dates and AXS/SeatGeek dates from any source.)
+    const names = new Map(list.map((r) => { const n = r.t ? r.t.artist : r.o.artist; return [n.toLowerCase(), n]; }));
+    const added = [];
+    names.forEach((name, lower) => {
+      const t = DATA.tours.find((x) => x.artist.toLowerCase() === lower);
+      const prio = (DATA.priority || []).filter((o) => o.artist.toLowerCase() === lower);
+      if (!(t && (t.all_shows || []).some((x) => x.just_added)) && !prio.some((o) => o.just_added)) return;
+      artistShows(t, prio).forEach((x) => { if (x.just_added && sellerOn(x.seller || 'Ticketmaster')) added.push(Object.assign({ artist: name, tour: t }, x)); });
+    });
+    added.sort((a, b) => (a.sale || '9').localeCompare(b.sale || '9') || a.date.localeCompare(b.date));
+    // Biggest artists with a sale in the next 7 days (Medium and Large), most monthly listeners first.
+    const week = new Map();
+    list.forEach((r) => {
+      if (r.ms == null || r.ms < now - 2 * 3600000 || r.ms > now + 7 * 86400000) return;
+      const s = saleInfo(r), pop = popularity(s.tour);
+      if (pop.rank < 2) return;
+      const a = week.get(s.artist) || { name: s.artist, tour: s.tour, pop, ms: r.ms, sales: 0, sellers: new Set() };
+      a.sales++; a.sellers.add(s.seller); a.ms = Math.min(a.ms, r.ms);
+      week.set(s.artist, a);
+    });
+    const big = [...week.values()].sort((a, b) => b.pop.n - a.pop.n);
+
+    const stats = el('div', null, 'stats');
+    const stat = (n, label, go) => { const b = el('button', null, 'stat'); b.appendChild(el('b', String(n))); b.appendChild(el('span', label)); b.onclick = go; stats.appendChild(b); };
+    const toDay = (d) => () => { state.view = 'calendar'; save('view2', 'calendar'); state.month = new Date(d.getFullYear(), d.getMonth(), 1); state.sel = dayKey(d); render(); };
+    const jump = (id) => () => { const n = $(id); if (n) n.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+    stat(onDay(today), 'Sales today', toDay(today));
+    stat(onDay(tomorrow), 'Tomorrow', toDay(tomorrow));
+    stat(others.length, 'AXS / SeatGeek', jump('d-others'));
+    stat(added.length, 'Just added', jump('d-added'));
+    box.appendChild(stats);
+
+    box.appendChild(dbox('d-next', 'Next up', 'live countdowns', nextUp, 5, saleRow, 'No sales coming up for these filters.'));
+    const grid = el('div', null, 'dgrid');
+    grid.appendChild(dbox('d-others', 'AXS / SeatGeek', 'not on sale yet', others, 6, saleRow,
+      state.sellers.has('AXS') || state.sellers.has('SeatGeek') ? 'None found right now.' : 'Tick AXS or SeatGeek above to see them.'));
+    grid.appendChild(dbox('d-added', 'Just added', 'new dates, last 48 hours', added, 6, (x) => {
+      const left = [el('b', showDate(x.date)), isWeekend(x.date) ? el('small', 'WEEKEND', 'wk') : null];
+      const status = x.status === 'onsale' ? 'On sale'
+        : x.sale ? `${x.estimated ? '≈ ' : ''}Sale ${fShort.format(new Date(x.sale))} ${fTime.format(new Date(x.sale))}`
+        : x.status === 'soon' ? 'On sale soon' : 'Sale date TBA';
+      const seller = x.seller || 'Ticketmaster';
+      return drow(left, [el('span', seller, 'seller ' + sellerClass(seller)), artistButton(x.artist)],
+        [x.venue, x.city].filter(Boolean).join(', '), [el('span', status, 'badge ' + (x.status === 'onsale' ? 'b-public' : 'b-other'))]);
+    }, 'No new dates in the last 48 hours.'));
+    box.appendChild(grid);
+    box.appendChild(dbox('d-big', 'Biggest artists this week', 'Medium and Large, sale in the next 7 days', big, 8, (a) => {
+      const left = [el('b', compact.format(a.pop.n)), el('small', a.pop.text.includes('Deezer') ? 'Deezer est.' : 'listeners')];
+      const sub = `Next sale ${fShort.format(new Date(a.ms))} ${fTime.format(new Date(a.ms))}` + (a.sales > 1 ? ` · ${a.sales} sales this week` : '');
+      return drow(left, [artistButton(a.name), sizePill(a.tour)], sub,
+        [...a.sellers].map((s) => el('span', s, 'seller ' + sellerClass(s))));
+    }, 'No Medium or Large artists on sale this week for these filters.'));
+  }
+
+  // Sidebar: one line per artist (next sale date + name), following the current filters.
+  const fMD = new Intl.DateTimeFormat([], { month: '2-digit', day: '2-digit' });
+  const fSideDay = new Intl.DateTimeFormat([], { weekday: 'short', month: 'short', day: 'numeric' });
+  const SELLER_DOT = { Ticketmaster: 'var(--tm)', SeatGeek: 'var(--sg)', AXS: 'var(--axs)' };
+  const SELLER_SHORT = { Ticketmaster: 'TM', SeatGeek: 'SG', AXS: 'AXS' };
+  // One entry per artist (earliest sale first): {name, ms, sellers, fresh, n, text}.
+  function artistsOf(list) {
+    const seen = new Map();
+    list.forEach((r) => {
+      const name = r.t ? r.t.artist : r.o.artist;
+      const seller = r.t ? 'Ticketmaster' : r.o.seller;
+      const tour = r.t || DATA.tours.find((x) => x.artist.toLowerCase() === name.toLowerCase());
+      const fresh = !!(tour && (tour.all_shows || []).some((x) => x.just_added))
+        || (DATA.priority || []).some((o) => o.just_added && o.artist.toLowerCase() === name.toLowerCase());
+      if (!seen.has(name)) {
+        const pop = popularity(tour || tourFor(r.o || { artist: name }));
+        seen.set(name, { name, ms: r.ms, sellers: new Set([seller]), fresh, n: pop.n, text: pop.text });
+      } else seen.get(name).sellers.add(seller);
+    });
+    return [...seen.values()];
+  }
+  function sideItem(a, md) {
+    const b = el('button', null, 'side-item');
+    b.setAttribute('aria-current', String(state.artist === a.name));
+    b.appendChild(el('span', md, 'sdt'));
+    b.appendChild(el('span', a.name, 'snm'));
+    if (a.fresh) { const n = el('span', 'NEW', 'new'); n.title = 'Has shows first seen in the last 48 hours'; b.appendChild(n); }
+    a.sellers.forEach((s) => { const i = el('span', SELLER_SHORT[s] || 'SG/AXS', 'sl'); i.style.color = SELLER_DOT[s] || 'var(--faint)'; i.title = s; b.appendChild(i); });
+    b.onclick = () => openArtist(a.name);
+    return b;
+  }
+  function renderSide(list, unv) {
+    const box = $('sideList');
+    box.innerHTML = '';
+    const artists = artistsOf(list);
+    $('dash').setAttribute('aria-current', String(!state.artist && state.view === 'dash'));
+    if (!artists.length) box.appendChild(el('div', 'No artists match the filters.', 'side-title'));
+    let lastDay = null;
+    artists.forEach((a) => {
+      const md = a.ms == null ? 'soon' : fMD.format(new Date(a.ms));
+      if (md !== lastDay) {  // a line + the day's name wherever the date changes
+        box.appendChild(el('div', a.ms == null ? 'On sale soon' : fSideDay.format(new Date(a.ms)), 'side-day'));
+        lastDay = md;
+      }
+      box.appendChild(sideItem(a, md));
+    });
+    // Unverified artists (no Spotify page found): folded at the bottom, by date like the rest.
+    const u = artistsOf(unv);
+    if (!u.length) return;
+    const open = state.open.has('side-unv');
+    const t = el('button', `${open ? '▾' : '▸'} Unverified (${u.length})`, 'side-day side-unv');
+    t.title = 'No Spotify page found, so their size is unknown. Could be big (a link not found) or tiny.';
+    t.onclick = () => { if (open) state.open.delete('side-unv'); else state.open.add('side-unv'); render(); };
+    box.appendChild(t);
+    if (open) u.forEach((a) => box.appendChild(sideItem(a, a.ms == null ? 'soon' : fMD.format(new Date(a.ms)))));
+  }
+
+  // Folded "Unverified" section under the Dashboard / List / Calendar: artists with no Spotify page
+  // found, one line per artist, most Deezer fans first (the only size clue), then by next sale.
+  function renderUnverified(box, unv) {
+    const u = artistsOf(unv).sort((a, b) => b.n - a.n || (a.ms == null) - (b.ms == null) || a.ms - b.ms);
+    if (!u.length) return;
+    const d = el('details', null, 'sec unv');
+    d.open = state.open.has('unv');
+    d.ontoggle = () => { if (d.open) state.open.add('unv'); else state.open.delete('unv'); };
+    d.appendChild(el('summary', `Unverified: ${u.length} artist${u.length === 1 ? '' : 's'} with no Spotify number`));
+    d.appendChild(el('p', "No Spotify page was found for these, so their size is unknown. Most are tribute or local acts, "
+      + 'but a big artist can end up here if the link isn’t found. Check before buying.'));
+    u.forEach((a) => {
+      const left = a.ms == null ? [el('b', 'TBA'), el('small', 'On sale soon')]
+        : [el('b', fTime.format(new Date(a.ms))), el('small', fShort.format(new Date(a.ms)))];
+      d.appendChild(drow(left, [artistButton(a.name)], a.text || 'No size data',
+        [...a.sellers].map((s) => el('span', s, 'seller ' + sellerClass(s)))));
+    });
+    box.appendChild(d);
+  }
+  function closeSide() { $('side').classList.remove('open'); $('sideToggle').setAttribute('aria-expanded', 'false'); }
+
+  function render() {
+    document.querySelectorAll('#sellerSeg button').forEach((b) => b.setAttribute('aria-pressed', String(state.sellers.has(b.dataset.seller))));
+    document.querySelectorAll('#viewSeg button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === state.view)));
+    $('size').value = state.size;
+    $('sizeLabel').textContent = SIZE_STEPS[state.size];
+    const box = $('view');
+    box.innerHTML = '';
+    const all = rows(), list = all.filter((r) => !r.u), unv = all.filter((r) => r.u);
+    if (DATA) renderSide(list, unv);
+    if (state.artist && DATA) { renderArtist(box); return; }
+    if (!state.sellers.size) { box.appendChild(el('div', 'Pick at least one seller above.', 'empty')); return; }
+    const wantsOthers = state.sellers.has('SeatGeek') || state.sellers.has('AXS');
+    if (DATA && wantsOthers && !(DATA.priority || []).length) box.appendChild(el('div', 'No SeatGeek or AXS sales found right now.', 'notice'));
+    if (state.view === 'calendar') renderCalendar(box, list);
+    else if (state.view === 'list') renderList(box, list);
+    else renderDash(box, list);
+    renderUnverified(box, unv);
+    tick();
+  }
+
+  document.querySelectorAll('#sellerSeg button').forEach((b) => {
+    b.onclick = () => {
+      const s = b.dataset.seller;
+      if (state.sellers.has(s)) state.sellers.delete(s); else state.sellers.add(s);
+      save('sellers', JSON.stringify([...state.sellers]));
+      render();
+    };
+  });
+  document.querySelectorAll('#viewSeg button').forEach((b) => { b.onclick = () => { state.view = b.dataset.view; state.artist = null; save('view2', state.view); render(); }; });
+  $('size').oninput = (e) => { state.size = Number(e.target.value); save('size5', state.size); render(); };
+  $('q').oninput = (e) => { state.q = e.target.value.trim(); state.artist = null; render(); };
+  $('dash').onclick = () => { state.artist = null; state.view = 'dash'; save('view2', 'dash'); closeSide(); window.scrollTo(0, 0); render(); };
+  $('sideToggle').onclick = () => {
+    const open = $('side').classList.toggle('open');
+    $('sideToggle').setAttribute('aria-expanded', String(open));
+  };
+
+  fetch('data.json', { cache: 'no-store' })
+    .then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then((d) => {
+      DATA = d; LEAD = d.queue_opens_minutes_before || 30;
+      const at = new Date(d.generated_at);
+      const qc = d.quick_checked_at && new Date(d.quick_checked_at);
+      $('updated').textContent = `${d.tours.length} artists · updated ${fShort.format(at)} ${fTime.format(at)}`
+        + (qc && qc > at ? ` · big artists checked ${fTime.format(qc)}` : '');
+      render();
+      setInterval(tick, 1000);
+    })
+    .catch(() => { $('updated').textContent = 'Could not load the latest data. Try refreshing in a minute.'; render(); });
+})();
+</script>
+</body>
+</html>

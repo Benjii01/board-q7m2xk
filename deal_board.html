@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ticket Deal Board</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --card: #ffffff; --ink: #1c2330; --muted: #637083; --line: #e3e7ed;
+    --accent: #2f6fde; --good: #16834a; --good-bg: #e5f5ec; --bad: #c0392b; --bad-bg: #fbe9e7;
+    --warn-bg: #fff4d6; --warn: #8a6200; --chip: #eef2f8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #12161d; --card: #1b212b; --ink: #e6eaf0; --muted: #98a3b3; --line: #2c3442;
+      --accent: #6b9cf0; --good: #4cc483; --good-bg: #173326; --bad: #f07a6b; --bad-bg: #3a1f1c;
+      --warn-bg: #3a3014; --warn: #f0c75e; --chip: #262e3b;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 15px/1.45 "Segoe UI", system-ui, sans-serif; }
+  main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 60px; }
+  h1 { margin: 0 0 4px; font-size: 26px; }
+  h2 { margin: 0 0 12px; font-size: 18px; }
+  .sub { color: var(--muted); margin: 0 0 20px; }
+  section { background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    padding: 18px; margin-bottom: 18px; }
+  .banner { padding: 10px 14px; border-radius: 8px; margin-bottom: 14px;
+    background: var(--warn-bg); color: var(--warn); }
+  .muted { color: var(--muted); }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); font-weight: 600; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .table-wrap { overflow-x: auto; }
+  .chip { display: inline-block; background: var(--chip); border-radius: 999px; padding: 2px 9px;
+    font-size: 12.5px; margin: 0 4px 4px 0; }
+  .up { color: var(--good); } .down { color: var(--bad); }
+  a { color: var(--accent); }
+  button { font: inherit; border: 1px solid var(--line); background: var(--chip); color: var(--ink);
+    border-radius: 7px; padding: 6px 12px; cursor: pointer; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  button:hover { filter: brightness(1.05); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+  label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+  input { width: 100%; font: inherit; padding: 7px 9px; border: 1px solid var(--line); border-radius: 7px;
+    background: var(--bg); color: var(--ink); }
+  .calc { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 760px) { .calc { grid-template-columns: 1fr; } }
+  .results { display: grid; grid-template-columns: 1fr auto; gap: 6px 14px; align-content: start; }
+  .results div:nth-child(even) { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+  .verdict { grid-column: 1 / -1; text-align: center !important; font-size: 26px; font-weight: 700;
+    padding: 10px; border-radius: 8px; margin-top: 8px; }
+  .verdict.BUY { background: var(--good-bg); color: var(--good); }
+  .verdict.PASS { background: var(--bad-bg); color: var(--bad); }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+  .errors { color: var(--bad); }
+  .note { font-size: 13px; color: var(--muted); margin-top: 10px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Ticket Deal Board</h1>
+  <p class="sub">Check a deal before you buy. Works offline; nothing is sent anywhere.</p>
+
+  <section>
+    <h2>Deal calculator</h2>
+    <div class="calc">
+      <div>
+        <div class="grid">
+          <div style="grid-column: 1 / -1"><label for="evName">Event (optional)</label>
+            <input id="evName" placeholder="e.g. Band name, Nov 12"></div>
+          <div><label for="buy">Buy price per ticket (all-in) $</label><input id="buy" type="number" min="0" step="0.01"></div>
+          <div><label for="qty">Quantity (min 2)</label><input id="qty" type="number" min="2" step="1" value="2"></div>
+          <div><label for="s1">Similar seat price 1 $</label><input id="s1" type="number" min="0" step="0.01"></div>
+          <div><label for="s2">Similar seat price 2 $</label><input id="s2" type="number" min="0" step="0.01"></div>
+          <div><label for="s3">Similar seat price 3 $ (optional)</label><input id="s3" type="number" min="0" step="0.01"></div>
+        </div>
+        <p class="note">Similar seat prices = what buyers see right now for seats like yours (fees included).</p>
+      </div>
+      <div>
+        <div id="calcOut" class="results"></div>
+        <div class="row">
+          <button class="primary" id="saveDeal">Save deal</button>
+          <span id="saveMsg" class="muted"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Settings</h2>
+    <div class="grid" id="settings"></div>
+    <div class="row"><button id="resetSettings">Reset to defaults</button>
+      <span class="muted">Placeholders. Update them to your real Lysted fees.</span></div>
+  </section>
+
+  <section>
+    <h2>Saved deals</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Saved</th><th>Event</th><th class="num">Qty</th><th class="num">Buy</th>
+          <th class="num">Est. sale</th><th class="num">Profit/ticket</th><th class="num">Total</th>
+          <th class="num">ROI</th><th>Verdict</th><th></th>
+        </tr></thead>
+        <tbody id="deals"></tbody>
+      </table>
+    </div>
+    <div class="row"><button id="exportCsv">Export CSV</button>
+      <span class="muted">Saved deals live in this browser. Export now and then as a backup.</span></div>
+  </section>
+</main>
+
+<script src="calc.js"></script>
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const money = (n) => (n < 0 ? '-$' : '$') + Math.abs(n).toFixed(2);
+
+  function store(key, fallback) {
+    try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+    catch (e) { return fallback; }
+  }
+  function keep(key, value) {
+    try { localStorage.setItem(key, JSON.stringify(value)); return true; } catch (e) { return false; }
+  }
+  function el(tag, text, cls) {
+    const e = document.createElement(tag);
+    if (text != null) e.textContent = text;
+    if (cls) e.className = cls;
+    return e;
+  }
+
+  // ---------- Settings ----------
+  const FIELDS = [
+    ['buyerFeePct', 'Buyer fee %'], ['sellFeePct', 'My selling fees %'], ['undercutPct', 'Undercut %'],
+    ['minProfit', 'Min profit $/ticket'], ['minRoiPct', 'Min ROI %'],
+  ];
+  let settings = Object.assign({}, DealCalc.DEFAULTS, store('tdb.settings', {}));
+  function drawSettings() {
+    const box = $('settings'); box.innerHTML = '';
+    FIELDS.forEach(([key, label]) => {
+      const d = el('div'); const l = el('label', label); const i = el('input');
+      l.htmlFor = 's_' + key; i.id = 's_' + key; i.type = 'number'; i.step = 'any'; i.value = settings[key];
+      i.oninput = () => {
+        const n = parseFloat(i.value);
+        if (!isNaN(n)) { settings[key] = n; keep('tdb.settings', settings); recalc(); }
+      };
+      d.appendChild(l); d.appendChild(i); box.appendChild(d);
+    });
+  }
+  $('resetSettings').onclick = () => {
+    settings = Object.assign({}, DealCalc.DEFAULTS); keep('tdb.settings', settings); drawSettings(); recalc();
+  };
+
+  // ---------- Calculator ----------
+  let last = null;
+  function inputs() {
+    return {
+      buyPrice: $('buy').value, quantity: $('qty').value,
+      similarPrices: [$('s1').value, $('s2').value, $('s3').value],
+    };
+  }
+  function recalc() {
+    const out = $('calcOut'); out.innerHTML = '';
+    const r = DealCalc.evaluate(inputs(), settings);
+    last = r.ok ? r : null;
+    if (!r.ok) {
+      r.errors.forEach((e) => { const d = el('div', e, 'errors'); d.style.gridColumn = '1 / -1'; out.appendChild(d); });
+      return;
+    }
+    const qty = Number($('qty').value);
+    [
+      ['Est. sale price (you list at)', money(r.listPrice)],
+      ['Buyers would see', money(r.buyerSees)],
+      ['Your payout per ticket', money(r.payout)],
+      ['Break-even list price', money(r.breakEvenList)],
+      ['Profit per ticket', money(r.profitPerTicket)],
+      ['Total profit (' + qty + ' tickets)', money(r.totalProfit)],
+      ['ROI', r.roiPct.toFixed(1) + '%'],
+    ].forEach(([k, v]) => { out.appendChild(el('div', k)); out.appendChild(el('div', v)); });
+    out.appendChild(el('div', r.verdict, 'verdict ' + r.verdict));
+    if (r.reasons.length) {
+      const d = el('div', r.reasons.join(' / '), 'muted'); d.style.gridColumn = '1 / -1'; d.style.textAlign = 'center';
+      out.appendChild(d);
+    }
+  }
+  ['buy', 'qty', 's1', 's2', 's3'].forEach((id) => { $(id).oninput = recalc; });
+
+  // ---------- Saved deals ----------
+  let deals = store('tdb.deals', []);
+  function drawDeals() {
+    const body = $('deals'); body.innerHTML = '';
+    if (!deals.length) {
+      const tr = el('tr'); const td = el('td', 'No saved deals yet.', 'muted'); td.colSpan = 10;
+      tr.appendChild(td); body.appendChild(tr); return;
+    }
+    deals.forEach((d, i) => {
+      const tr = el('tr');
+      tr.appendChild(el('td', new Date(d.saved_at).toLocaleDateString()));
+      tr.appendChild(el('td', d.event || '-'));
+      tr.appendChild(el('td', String(d.quantity), 'num'));
+      tr.appendChild(el('td', money(d.buy_price), 'num'));
+      tr.appendChild(el('td', money(d.est_sale), 'num'));
+      tr.appendChild(el('td', money(d.profit_per_ticket), 'num'));
+      tr.appendChild(el('td', money(d.total_profit), 'num'));
+      tr.appendChild(el('td', d.roi_pct.toFixed(1) + '%', 'num'));
+      tr.appendChild(el('td', d.verdict, d.verdict === 'BUY' ? 'up' : 'down'));
+      const del = el('button', 'Delete');
+      del.onclick = () => {
+        if (!confirm('Delete this saved deal?')) return;
+        deals.splice(i, 1); keep('tdb.deals', deals); drawDeals();
+      };
+      const td = el('td'); td.appendChild(del); tr.appendChild(td);
+      body.appendChild(tr);
+    });
+  }
+  $('saveDeal').onclick = () => {
+    if (!last) { $('saveMsg').textContent = 'Fill in the calculator first.'; return; }
+    const inp = inputs();
+    deals.unshift({
+      saved_at: new Date().toISOString(), event: $('evName').value.trim(),
+      quantity: Number(inp.quantity), buy_price: Number(inp.buyPrice),
+      similar_prices: inp.similarPrices.filter((p) => p !== '').join(' / '),
+      est_sale: last.listPrice, payout: last.payout, break_even: last.breakEvenList,
+      profit_per_ticket: last.profitPerTicket, total_profit: last.totalProfit,
+      roi_pct: last.roiPct, verdict: last.verdict,
+    });
+    $('saveMsg').textContent = keep('tdb.deals', deals) ? 'Saved.' : 'Could not save in this browser.';
+    drawDeals();
+  };
+  $('exportCsv').onclick = () => {
+    const cols = ['saved_at', 'event', 'quantity', 'buy_price', 'similar_prices', 'est_sale', 'payout',
+      'break_even', 'profit_per_ticket', 'total_profit', 'roi_pct', 'verdict'];
+    const cell = (v) => {
+      if (typeof v === 'number') v = v.toFixed(2);
+      v = String(v == null ? '' : v);
+      if (/^[=+\-@]/.test(v) && isNaN(Number(v))) v = "'" + v; // stop Excel treating text as a formula
+      return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+    };
+    const csv = [cols.join(',')].concat(deals.map((d) => cols.map((c) => cell(d[c])).join(','))).join('\r\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+    a.download = 'saved-deals-' + new Date().toISOString().slice(0, 10) + '.csv';
+    a.click();
+  };
+
+  drawSettings(); recalc(); drawDeals();
+})();
+</script>
+</body>
+</html>
